@@ -1,1 +1,50 @@
+name: Build VST3
 
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install CMake (Windows)
+        if: runner.os == 'Windows'
+        run: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+
+      - name: Clone JUCE
+        run: git clone --depth 1 https://github.com/juce-framework/JUCE.git JUCE
+
+      - name: Configure CMake
+        run: cmake -B build -D JUCE_BUILD_EXAMPLES=OFF -D JUCE_BUILD_EXTRAS=OFF
+
+      - name: Build Plugin
+        run: cmake --build build --config Release
+
+      - name: Upload VST3 (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v3
+        with:
+          name: MokkUnrealChorus-Windows
+          path: build/MokkUnrealChorus_artefacts/Release/VST3/
+
+      - name: Upload VST3 (Mac)
+        if: runner.os == 'macos-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: MokkUnrealChorus-Mac
+          path: build/MokkUnrealChorus_artefacts/Release/VST3/
