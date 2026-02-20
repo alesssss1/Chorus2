@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -37,7 +37,7 @@ jobs:
 
       - name: Upload VST3 (Windows)
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: MokkUnrealChorus-Windows
           path: build/MokkUnrealChorus_artefacts/Release/VST3/
